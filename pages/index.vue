@@ -3,7 +3,7 @@
     <div class="search-inputs">
       <div class="search-input">
         <span class="search-input__label"> Сообщество </span>
-        <el-select 
+        <el-select
           v-model="groupName" 
           placeholder="Select"
           @change="loadEvents">
@@ -40,31 +40,43 @@
       </div>
       <div class="search-input _print">
         <div/>
-        <el-button 
+        <el-button
           :disabled="!rsvps.length" 
           type="primary"
           @click="print">
           Print
         </el-button>
       </div>
-      
+      <div class="search-input _print">
+        <div/>
+        <el-button
+          type="primary"
+          @click="newMember">
+          Добавить
+        </el-button>
+      </div>
     </div>
-    
-    <div 
-      v-if="rsvps.length" 
+    <div
+      v-if="rsvps.length"
       class="members-container"
     >
       <h2> участников: {{ rsvps.length }}</h2>
     </div>
-    <div 
-      v-if="rsvps.length" 
+    <div
+      v-if="rsvps.length"
       id="fittext-container"
       class="preview">
-
-      <span 
+      <div
         v-for="member in rsvps"
-        :key="member" 
-        class="preview__member"> {{ member }} </span>
+        :key="member"
+        class="preview__member">
+
+        <span > {{ member }} </span>
+        <i
+          class="member__delete el-icon-delete"
+          @click="deleteMember(member)"
+        />
+      </div>
     </div>
   </section>
 </template>
@@ -115,6 +127,17 @@ export default {
         document.getElementsByClassName('preview__member'),
         this.fitTextMagicNunber
       )
+    },
+    deleteMember(member) {
+      this.rsvps = this.rsvps.filter(m => m !== member)
+    },
+    newMember(member) {
+      this.$prompt('Введи имя и фамилию', 'Новый участник', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel'
+      }).then(({ value }) => {
+        this.rsvps.push(value)
+      })
     }
   }
 }
@@ -191,12 +214,22 @@ export default {
   max-width: calc(100% / 3);
   width: calc(100% / 3);
   height: calc(297mm / 7); /* 7 строк на странице */
+
+  position: relative;
 }
 
 .preview {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  width: 100%;
+}
+
+.member__delete {
+  cursor: pointer;
+  position: absolute;
+  top: 10px; /* прибиваем гвоздями */
+  right: 10px;
 }
 
 @page {
@@ -211,7 +244,8 @@ export default {
     width: 21cm;
   }
   .search-inputs,
-  .members-container {
+  .members-container,
+  .member__delete {
     display: none;
   }
 }
