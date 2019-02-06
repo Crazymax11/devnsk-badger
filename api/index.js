@@ -8,8 +8,9 @@ app.get('/:groupName/events/:eventId/rsvps', async (req, res, next) => {
   const rsvps = await axios.get(
     `https://api.meetup.com/${groupName}/events/${eventId}/rsvps?key=${apiKey}`
   )
-
-  return res.json(rsvps.data.map(({ member }) => member.name))
+  return res.json(
+    rsvps.data.map(({ member }) => ({ name: member.name, id: member.id }))
+  )
 })
 
 app.get('/:groupName/events', async (req, res, next) => {

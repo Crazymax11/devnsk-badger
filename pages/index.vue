@@ -66,29 +66,31 @@
       v-if="rsvps.length"
       id="fittext-container"
       class="preview">
+      
       <div
         v-for="member in rsvps"
-        :key="member"
-        class="preview__member">
-
-        <span > {{ member }} </span>
-        <i
-          class="member__delete el-icon-delete"
-          @click="deleteMember(member)"
-        />
-      </div>
+        :is="badgeComponent"
+        :key="member.id"
+        :member="member.name"
+        :event-name="eventName"
+        @delete="deleteMember(member.id)"
+      />
     </div>
   </section>
 </template>
 
 <script>
 import Logo from '~/components/Logo.vue'
+import SimpleBadge from '~/components/SimpleBadge.vue'
+import DevNskBadge from '~/components/DevNskBadge.vue'
 import axios from 'axios'
 import Vue from 'vue'
 import fitty from 'fitty'
 export default {
   components: {
-    Logo
+    Logo,
+    SimpleBadge,
+    DevNskBadge
   },
   data() {
     return {
@@ -98,6 +100,14 @@ export default {
       rsvps: [],
       fitTextMagicNunber: 1.3,
       options: ['AgileNSK', 'DEVNSK', 'Docker-Novosibirsk', 'GDGNsk']
+    }
+  },
+  computed: {
+    badgeComponent() {
+      return this.groupName === 'DEVNSK' ? 'DevNskBadge' : 'SimpleBadge'
+    },
+    eventName() {
+      return this.events.find(event => event.id === this.eventId).name
     }
   },
   watch: {
@@ -128,15 +138,15 @@ export default {
         this.fitTextMagicNunber
       )
     },
-    deleteMember(member) {
-      this.rsvps = this.rsvps.filter(m => m !== member)
+    deleteMember(id) {
+      this.rsvps = this.rsvps.filter(m => m.id !== id)
     },
     newMember(member) {
       this.$prompt('Введи имя и фамилию', 'Новый участник', {
         confirmButtonText: 'OK',
         cancelButtonText: 'Cancel'
       }).then(({ value }) => {
-        this.rsvps.push(value)
+        this.rsvps.push({ name: value, id: Date.now() })
       })
     }
   }
@@ -201,35 +211,11 @@ export default {
   align-items: stretch;
 }
 
-.preview__member {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid;
-  text-align: center;
-  box-sizing: border-box;
-  padding: 10mm;
-
-  min-width: calc(100% / 3); /* 3 столбца */
-  max-width: calc(100% / 3);
-  width: calc(100% / 3);
-  height: calc(297mm / 7); /* 7 строк на странице */
-
-  position: relative;
-}
-
 .preview {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   width: 100%;
-}
-
-.member__delete {
-  cursor: pointer;
-  position: absolute;
-  top: 10px; /* прибиваем гвоздями */
-  right: 10px;
 }
 
 @page {
